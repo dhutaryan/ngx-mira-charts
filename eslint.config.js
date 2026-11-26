@@ -65,6 +65,7 @@ module.exports = typescript.config(
 
             // Fields
             'public-field',
+            'protected-field',
             'private-field',
             '#private-field',
 
