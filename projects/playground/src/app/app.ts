@@ -5,6 +5,7 @@ import {
   signal,
 } from '@angular/core'
 import {
+  type LineCurve,
   MiraCartesianGrid,
   MiraLine,
   MiraLineChart,
@@ -53,6 +54,7 @@ export class App {
   protected readonly showPv = signal(true)
   protected readonly dots = signal(true)
   protected readonly gaps = signal(false)
+  protected readonly curve = signal<LineCurve>('linear')
 
   /** With gaps on, every third uv goes missing, and the line breaks there. */
   protected readonly data = computed(() =>
