@@ -1,0 +1,47 @@
+{
+  "name": "ngx-mira-charts",
+  "version": "0.0.0",
+  "packageManager": "pnpm@12.18.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve playground",
+    "build:lib": "ng build ngx-mira-charts",
+    "watch": "ng build --watch --project ngx-mira-charts --configuration development",
+    "test": "ng test ngx-mira-charts",
+    "test:ci": "ng test ngx-mira-charts --watch=false --browsers=ChromeHeadless",
+    "test:coverage": "ng test ngx-mira-charts --watch=false --browsers=ChromeHeadless --code-coverage",
+    "lint": "ng lint"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/common": "^20.3.35",
+    "@angular/compiler": "^20.3.35",
+    "@angular/core": "^20.3.35",
+    "@angular/forms": "^20.3.35",
+    "@angular/platform-browser": "^20.3.35",
+    "@angular/router": "^20.3.35",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular-eslint/builder": "20.7.0",
+    "@angular/build": "^20.3.43",
+    "@angular/cli": "^20.3.43",
+    "@angular/compiler-cli": "^20.3.35",
+    "@eslint/js": "^9.39.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/jasmine": "~5.1.0",
+    "angular-eslint": "20.7.0",
+    "eslint": "^9.39.1",
+    "jasmine-core": "~5.9.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "ng-packagr": "^20.3.2",
+    "prettier": "^3.8.3",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "8.46.4"
+  }
+}
