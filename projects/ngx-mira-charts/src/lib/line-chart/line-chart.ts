@@ -3,12 +3,15 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  contentChild,
   contentChildren,
   forwardRef,
 } from '@angular/core'
 
 import { CartesianChart } from '../core/cartesian-chart'
 import { pointPositions } from '../core/scale'
+import { MiraXAxis } from '../core/x-axis'
+import { MiraYAxis } from '../core/y-axis'
 import { MiraLine } from './line'
 
 /**
@@ -64,6 +67,9 @@ export class MiraLineChart extends CartesianChart {
   protected override readonly valueKeys = computed(() =>
     this.lines().map((line) => line.dataKey()),
   )
+
+  protected override readonly xAxis = contentChild(MiraXAxis)
+  protected override readonly yAxis = contentChild(MiraYAxis)
 
   protected readonly viewBox = computed(
     () => `0 0 ${this.width()} ${this.height()}`,
