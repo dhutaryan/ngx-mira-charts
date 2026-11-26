@@ -20,7 +20,7 @@ import { MiraLine } from './line'
  *
  * @example
  * ```html
- * <mira-line-chart [data]="sales" [width]="640" [height]="320">
+ * <mira-line-chart [data]="sales">
  *   <mira-line dataKey="revenue" stroke="#8884d8" />
  *   <mira-line dataKey="costs" stroke="#82ca9d" />
  * </mira-line-chart>
@@ -39,8 +39,8 @@ import { MiraLine } from './line'
   template: `
     <svg
       role="img"
-      [attr.width]="width()"
-      [attr.height]="height()"
+      [attr.width]="size().width"
+      [attr.height]="size().height"
       [attr.viewBox]="viewBox()"
       [attr.aria-label]="ariaLabel() ?? null"
     >
@@ -49,9 +49,6 @@ import { MiraLine } from './line'
       }
     </svg>
   `,
-  host: {
-    '[style.display]': '"block"',
-  },
   styles: `
     svg {
       display: block;
@@ -74,7 +71,9 @@ export class MiraLineChart extends MiraCartesianChart {
   protected override readonly xAxis = contentChild(MiraXAxis)
   protected override readonly yAxis = contentChild(MiraYAxis)
 
-  protected readonly viewBox = computed(
-    () => `0 0 ${this.width()} ${this.height()}`,
-  )
+  protected readonly viewBox = computed(() => {
+    const { width, height } = this.size()
+
+    return `0 0 ${width} ${height}`
+  })
 }

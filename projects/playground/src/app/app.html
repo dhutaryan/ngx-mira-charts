@@ -6,7 +6,7 @@
     pv: {{ showPv() ? 'on' : 'off' }}
   </button>
 
-  <mira-line-chart [data]="data()" [width]="640" [height]="320">
+  <mira-line-chart [data]="data()">
     <mira-cartesian-grid strokeDasharray="3 3" />
     <mira-x-axis dataKey="name" />
     <mira-y-axis />
