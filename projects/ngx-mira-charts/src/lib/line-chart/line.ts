@@ -41,10 +41,10 @@ import { type LineCurve, type Point, linePath } from '../core/path'
           @for (point of dots(); track $index) {
             <svg:circle
               class="mira-line-dot"
-              r="3"
+              r="4"
               [attr.cx]="point.x"
               [attr.cy]="point.y"
-              [attr.stroke]="stroke()"
+              [attr.fill]="stroke()"
             />
           }
         }
@@ -55,11 +55,6 @@ import { type LineCurve, type Point, linePath } from '../core/path'
     .mira-line-curve {
       fill: none;
       stroke-width: 2;
-    }
-
-    .mira-line-dot {
-      fill: var(--mira-dot-fill, #fff);
-      stroke-width: 1.5;
     }
   `,
 })
