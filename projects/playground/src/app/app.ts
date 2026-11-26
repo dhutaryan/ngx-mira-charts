@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  signal,
+} from '@angular/core'
 import {
   MiraCartesianGrid,
   MiraLine,
@@ -11,7 +16,7 @@ import { AverageLine } from './average-line'
 
 type Visits = {
   name: string
-  uv: number
+  uv: number | null
   pv: number
 }
 
@@ -44,11 +49,22 @@ function randomCount(): number {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
-  protected readonly data = signal<readonly Visits[]>(SAMPLE)
+  protected readonly visits = signal<readonly Visits[]>(SAMPLE)
   protected readonly showPv = signal(true)
+  protected readonly dots = signal(true)
+  protected readonly gaps = signal(false)
+
+  /** With gaps on, every third uv goes missing, and the line breaks there. */
+  protected readonly data = computed(() =>
+    this.gaps()
+      ? this.visits().map((row, index) =>
+          index % 3 === 1 ? { ...row, uv: null } : row,
+        )
+      : this.visits(),
+  )
 
   protected randomize(): void {
-    this.data.update((rows) =>
+    this.visits.update((rows) =>
       rows.map((row) => ({ ...row, uv: randomCount(), pv: randomCount() })),
     )
   }
