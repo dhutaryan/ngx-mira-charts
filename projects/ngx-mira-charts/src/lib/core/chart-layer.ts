@@ -1,19 +1,40 @@
 import { Directive, TemplateRef, viewChild } from '@angular/core'
 
 /**
- * Something a chart draws in its svg: a line, an axis, the grid. A layer is an
- * element of its own in the chart's content (`<mira-line>`) and renders
- * nothing where it's written. Its template holds what it draws, and the chart
- * renders that into its svg, in the order the layers are written: the first
- * one ends up at the bottom.
+ * Something a chart draws in its svg: a line, an axis, the grid, or a layer
+ * of your own. A layer is an element of its own in the chart's content and
+ * renders nothing where it's written: the chart renders the layer's
+ * `<ng-template>` into its svg, in the order the layers are written, so the
+ * first one ends up at the bottom.
  *
- * A layer extends this class and provides itself under it, so the chart finds
- * every kind of layer with one query, in order.
+ * To draw a layer of your own, extend this class, provide your component
+ * under it, and put what it draws in an `<ng-template>`, as `svg:` elements.
+ * Inject {@link MiraCartesianChart} for the plot area and the scales.
  *
- * @internal
+ * @example
+ * ```ts
+ * @Component({
+ *   selector: 'app-target',
+ *   providers: [
+ *     { provide: MiraChartLayer, useExisting: forwardRef(() => Target) },
+ *   ],
+ *   template: `
+ *     <ng-template>
+ *       <svg:line [attr.y1]="y()" [attr.y2]="y()" … />
+ *     </ng-template>
+ *   `,
+ * })
+ * export class Target extends MiraChartLayer {
+ *   readonly value = input.required<number>()
+ *
+ *   protected readonly y = computed(() => this.#chart.yScale()(this.value()))
+ *
+ *   readonly #chart = inject(MiraCartesianChart)
+ * }
+ * ```
  */
 @Directive()
-export abstract class ChartLayer {
+export abstract class MiraChartLayer {
   /** What the layer draws: the first `<ng-template>` in its own template. */
   readonly template = viewChild(TemplateRef)
 }

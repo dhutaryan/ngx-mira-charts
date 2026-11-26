@@ -10,11 +10,11 @@ import {
 } from '@angular/core'
 
 import {
-  CartesianChart,
+  MiraCartesianChart,
   DEFAULT_TICK_COUNT,
   type Tick,
 } from './cartesian-chart'
-import { ChartLayer } from './chart-layer'
+import { MiraChartLayer } from './chart-layer'
 
 /**
  * The value axis left of the plot. It fits the values of every series in the
@@ -30,7 +30,7 @@ import { ChartLayer } from './chart-layer'
   selector: 'mira-y-axis',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
-    { provide: ChartLayer, useExisting: forwardRef(() => MiraYAxis) },
+    { provide: MiraChartLayer, useExisting: forwardRef(() => MiraYAxis) },
   ],
   template: `
     <ng-template>
@@ -68,7 +68,7 @@ import { ChartLayer } from './chart-layer'
     }
   `,
 })
-export class MiraYAxis extends ChartLayer {
+export class MiraYAxis extends MiraChartLayer {
   /** The room the axis takes left of the plot, in px. */
   readonly width = input(60, { transform: numberAttribute })
   /** About how many ticks to show: the axis picks round values near it. */
@@ -76,7 +76,7 @@ export class MiraYAxis extends ChartLayer {
     transform: numberAttribute,
   })
 
-  protected readonly chart = inject(CartesianChart)
+  protected readonly chart = inject(MiraCartesianChart)
   protected readonly x = computed(() => this.chart.plot().left)
   protected readonly ticks = computed(() => {
     const ticks = this.chart.yTicks()

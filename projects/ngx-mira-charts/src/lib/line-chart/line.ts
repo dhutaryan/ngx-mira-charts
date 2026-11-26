@@ -7,8 +7,8 @@ import {
   input,
 } from '@angular/core'
 
-import { CartesianChart } from '../core/cartesian-chart'
-import { ChartLayer } from '../core/chart-layer'
+import { MiraCartesianChart } from '../core/cartesian-chart'
+import { MiraChartLayer } from '../core/chart-layer'
 import { numberAt } from '../core/data'
 import { type Point, linePath } from '../core/path'
 
@@ -24,7 +24,9 @@ import { type Point, linePath } from '../core/path'
 @Component({
   selector: 'mira-line',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [{ provide: ChartLayer, useExisting: forwardRef(() => MiraLine) }],
+  providers: [
+    { provide: MiraChartLayer, useExisting: forwardRef(() => MiraLine) },
+  ],
   template: `
     <ng-template>
       <svg:path class="mira-line" [attr.d]="path()" [attr.stroke]="stroke()" />
@@ -37,14 +39,14 @@ import { type Point, linePath } from '../core/path'
     }
   `,
 })
-export class MiraLine extends ChartLayer {
+export class MiraLine extends MiraChartLayer {
   /** The key of the values to plot. */
   readonly dataKey = input.required<string>()
   readonly stroke = input('#3182bd')
 
   protected readonly path = computed(() => linePath(this.#points()))
 
-  readonly #chart = inject(CartesianChart)
+  readonly #chart = inject(MiraCartesianChart)
   // A point per datum, or null where the datum has no value to plot.
   readonly #points = computed<ReadonlyArray<Point | null>>(() => {
     const key = this.dataKey()

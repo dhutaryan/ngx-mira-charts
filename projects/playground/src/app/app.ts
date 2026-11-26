@@ -1,5 +1,13 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core'
-import { MiraLine, MiraLineChart, MiraXAxis, MiraYAxis } from 'ngx-mira-charts'
+import {
+  MiraCartesianGrid,
+  MiraLine,
+  MiraLineChart,
+  MiraXAxis,
+  MiraYAxis,
+} from 'ngx-mira-charts'
+
+import { AverageLine } from './average-line'
 
 type Visits = {
   name: string
@@ -23,7 +31,14 @@ function randomCount(): number {
 
 @Component({
   selector: 'app-root',
-  imports: [MiraLineChart, MiraLine, MiraXAxis, MiraYAxis],
+  imports: [
+    MiraLineChart,
+    MiraCartesianGrid,
+    MiraXAxis,
+    MiraYAxis,
+    MiraLine,
+    AverageLine,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

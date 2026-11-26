@@ -7,7 +7,7 @@ import {
   numberAttribute,
 } from '@angular/core'
 
-import { ChartLayer } from './chart-layer'
+import { MiraChartLayer } from './chart-layer'
 import { extentOf } from './data'
 import { linearScale, linearTicks } from './scale'
 import type { ChartDatum, ChartMargin } from './types'
@@ -54,10 +54,11 @@ const DEFAULT_MARGIN: ChartMargin = { top: 10, right: 20, bottom: 10, left: 10 }
  * the grid and the series inject it to know where to draw, whichever chart
  * they're in. The way `MatTable` extends `CdkTable`.
  *
- * @internal
+ * Inject it in a layer of your own ({@link MiraChartLayer}) to draw where the
+ * chart's series are.
  */
 @Directive()
-export abstract class CartesianChart {
+export abstract class MiraCartesianChart {
   /** The rows to plot. */
   readonly data = input<readonly ChartDatum[]>([])
   readonly width = input.required<number, unknown>({
@@ -104,7 +105,7 @@ export abstract class CartesianChart {
   abstract readonly xPositions: Signal<readonly number[]>
 
   /** What the chart draws, in the order it's written. */
-  protected readonly layers = contentChildren(ChartLayer)
+  protected readonly layers = contentChildren(MiraChartLayer)
 
   /** The keys of the values the y axis has to fit: one per series. */
   protected abstract readonly valueKeys: Signal<readonly string[]>

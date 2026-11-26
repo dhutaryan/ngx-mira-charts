@@ -8,7 +8,7 @@ import {
   forwardRef,
 } from '@angular/core'
 
-import { CartesianChart } from '../core/cartesian-chart'
+import { MiraCartesianChart } from '../core/cartesian-chart'
 import { pointPositions } from '../core/scale'
 import { MiraXAxis } from '../core/x-axis'
 import { MiraYAxis } from '../core/y-axis'
@@ -31,7 +31,10 @@ import { MiraLine } from './line'
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet],
   providers: [
-    { provide: CartesianChart, useExisting: forwardRef(() => MiraLineChart) },
+    {
+      provide: MiraCartesianChart,
+      useExisting: forwardRef(() => MiraLineChart),
+    },
   ],
   template: `
     <svg
@@ -55,7 +58,7 @@ import { MiraLine } from './line'
     }
   `,
 })
-export class MiraLineChart extends CartesianChart {
+export class MiraLineChart extends MiraCartesianChart {
   /** A point per datum, from edge to edge of the plot. */
   override readonly xPositions = computed(() => {
     const { left, width } = this.plot()

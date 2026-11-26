@@ -8,8 +8,8 @@ import {
   numberAttribute,
 } from '@angular/core'
 
-import { CartesianChart } from './cartesian-chart'
-import { ChartLayer } from './chart-layer'
+import { MiraCartesianChart } from './cartesian-chart'
+import { MiraChartLayer } from './chart-layer'
 import { valueAt } from './data'
 
 /**
@@ -25,7 +25,7 @@ import { valueAt } from './data'
   selector: 'mira-x-axis',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
-    { provide: ChartLayer, useExisting: forwardRef(() => MiraXAxis) },
+    { provide: MiraChartLayer, useExisting: forwardRef(() => MiraXAxis) },
   ],
   template: `
     <ng-template>
@@ -63,13 +63,13 @@ import { valueAt } from './data'
     }
   `,
 })
-export class MiraXAxis extends ChartLayer {
+export class MiraXAxis extends MiraChartLayer {
   /** The key of each datum's category. Without one, the ticks show indexes. */
   readonly dataKey = input<string>()
   /** The room the axis takes under the plot, in px. */
   readonly height = input(30, { transform: numberAttribute })
 
-  protected readonly chart = inject(CartesianChart)
+  protected readonly chart = inject(MiraCartesianChart)
   protected readonly y = computed(
     () => this.chart.plot().top + this.chart.plot().height,
   )
