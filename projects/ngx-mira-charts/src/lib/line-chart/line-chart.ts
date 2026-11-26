@@ -2,10 +2,12 @@ import { NgTemplateOutlet } from '@angular/common'
 import {
   ChangeDetectionStrategy,
   Component,
+  type ElementRef,
   computed,
   contentChild,
   contentChildren,
   forwardRef,
+  viewChild,
 } from '@angular/core'
 
 import { MiraCartesianChart } from '../core/cartesian-chart'
@@ -39,6 +41,7 @@ import { MiraLine } from './line'
   ],
   template: `
     <svg
+      #svg
       role="img"
       [attr.width]="size().width"
       [attr.height]="size().height"
@@ -74,6 +77,8 @@ export class MiraLineChart extends MiraCartesianChart {
 
   protected override readonly xAxis = contentChild(MiraXAxis)
   protected override readonly yAxis = contentChild(MiraYAxis)
+  protected override readonly svg =
+    viewChild.required<ElementRef<SVGSVGElement>>('svg')
 
   protected readonly viewBox = computed(() => {
     const { width, height } = this.size()

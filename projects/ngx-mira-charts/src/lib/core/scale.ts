@@ -84,6 +84,32 @@ export function pointPositions(count: number, range: Extent): number[] {
   return Array.from({ length: count }, (_, index) => start + index * step)
 }
 
+/**
+ * The index of the position nearest `x`, the lower one on a tie; null for no
+ * positions. The positions go up, as from {@link pointPositions}.
+ *
+ * @internal
+ */
+export function nearestIndex(
+  positions: readonly number[],
+  x: number,
+): number | null {
+  if (positions.length === 0) return null
+
+  // The first position at or past x, or the last one.
+  let low = 0
+  let high = positions.length - 1
+
+  while (low < high) {
+    const middle = (low + high) >> 1
+
+    if (positions[middle] < x) low = middle + 1
+    else high = middle
+  }
+
+  return low > 0 && x - positions[low - 1] <= positions[low] - x ? low - 1 : low
+}
+
 /*
  * The step between round ticks as a whole number: the step itself when it's
  * 1 or more, minus its inverse when it's less (-10 for 0.1). Whole numbers

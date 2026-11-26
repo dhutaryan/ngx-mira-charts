@@ -12,12 +12,14 @@ export const CHART_THEME = `
   :host {
     --_mira-axis-color: var(--mira-axis-color, #666);
     --_mira-grid-color: var(--mira-grid-color, #ccc);
+    --_mira-background: var(--mira-background, #fff);
   }
 
   @supports (color: light-dark(#000, #fff)) {
     :host {
       --_mira-axis-color: var(--mira-axis-color, light-dark(#666, #999));
       --_mira-grid-color: var(--mira-grid-color, light-dark(#ccc, #333));
+      --_mira-background: var(--mira-background, Canvas);
     }
   }
 `

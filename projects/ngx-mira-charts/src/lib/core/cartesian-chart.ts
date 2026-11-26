@@ -14,7 +14,7 @@ import {
 
 import { MiraChartLayer } from './chart-layer'
 import { extentOf } from './data'
-import { linearScale, linearTicks } from './scale'
+import { linearScale, linearTicks, nearestIndex } from './scale'
 import type { ChartDatum, ChartMargin } from './types'
 import type { MiraXAxis } from './x-axis'
 import type { MiraYAxis } from './y-axis'
@@ -69,7 +69,10 @@ const FALLBACK_SIZE = { width: 600, height: 300 }
  * Its colors are CSS custom properties, to set anywhere above the chart:
  *
  * - `--mira-axis-color`: the axes' lines and labels;
- * - `--mira-grid-color`: the grid.
+ * - `--mira-grid-color`: the grid;
+ * - `--mira-background`: what's behind the chart, for the ring around a dot
+ *   under the pointer. The page's by default: set it where the chart sits on
+ *   a card of another color.
  *
  * Unset, they suit the page's `color-scheme`: light by default, dark where the
  * page sets `color-scheme: dark`, and the system's with `light dark`. A line's
@@ -144,6 +147,12 @@ export abstract class MiraCartesianChart {
     return this.#yNice().ticks.map((value) => ({ value, offset: scale(value) }))
   })
 
+  /**
+   * The index of the datum nearest the pointer along x, or null while the
+   * pointer is off the plot.
+   */
+  readonly activeIndex = computed(() => this.#activeIndex())
+
   /** The x of each datum, in the order of the data. */
   abstract readonly xPositions: Signal<readonly number[]>
 
@@ -156,9 +165,12 @@ export abstract class MiraCartesianChart {
   protected abstract readonly xAxis: Signal<MiraXAxis | undefined>
   /** The chart's y axis, if it has one: the plot leaves room for it. */
   protected abstract readonly yAxis: Signal<MiraYAxis | undefined>
+  /** The chart's svg, where the pointer is tracked. */
+  protected abstract readonly svg: Signal<ElementRef<SVGSVGElement>>
 
   // The size of the chart's element, as the browser last laid it out.
   readonly #measured = signal<{ width: number; height: number } | null>(null)
+  readonly #activeIndex = signal<number | null>(null)
 
   // The values of every series, and zero, rounded out to round ticks.
   readonly #yNice = computed(() => {
@@ -172,7 +184,8 @@ export abstract class MiraCartesianChart {
     const element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement
     const destroyRef = inject(DestroyRef)
 
-    // In the browser only: on the server there's no layout to measure.
+    // In the browser only: on the server there's no layout to measure, and no
+    // pointer.
     afterNextRender(() => {
       const observer = new ResizeObserver(([entry]) => {
         const { width, height } = entry.contentRect
@@ -185,8 +198,45 @@ export abstract class MiraCartesianChart {
       })
 
       observer.observe(element)
-      destroyRef.onDestroy(() => observer.disconnect())
+
+      // Listened to outside the template, where every event would check the
+      // chart again: here, a pointer moving about the same datum changes
+      // nothing.
+      const svg = this.svg().nativeElement
+      const listening = new AbortController()
+      const track = (event: PointerEvent): void =>
+        this.#activeIndex.set(this.#indexAt(event))
+
+      svg.addEventListener('pointermove', track, listening)
+      svg.addEventListener('pointerdown', track, listening)
+      svg.addEventListener(
+        'pointerleave',
+        () => this.#activeIndex.set(null),
+        listening,
+      )
+
+      destroyRef.onDestroy(() => {
+        observer.disconnect()
+        listening.abort()
+      })
     })
+  }
+
+  // The datum nearest the pointer along x, if the pointer is on the plot.
+  #indexAt(event: PointerEvent): number | null {
+    const matrix = this.svg().nativeElement.getScreenCTM()
+
+    if (!matrix) return null
+
+    // The pointer in the svg's own px, whatever scales the svg on the page.
+    const { x, y } = new DOMPoint(event.clientX, event.clientY).matrixTransform(
+      matrix.inverse(),
+    )
+    const { left, top, width, height } = this.plot()
+    const onPlot =
+      x >= left && x <= left + width && y >= top && y <= top + height
+
+    return onPlot ? nearestIndex(this.xPositions(), x) : null
   }
 }
 
