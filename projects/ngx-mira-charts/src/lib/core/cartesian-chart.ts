@@ -70,6 +70,7 @@ const FALLBACK_SIZE = { width: 600, height: 300 }
  *
  * - `--mira-axis-color`: the axes' lines and labels;
  * - `--mira-grid-color`: the grid;
+ * - `--mira-cursor-color`: the vertical line at the datum under the pointer;
  * - `--mira-background`: what's behind the chart, for the ring around a dot
  *   under the pointer. The page's by default: set it where the chart sits on
  *   a card of another color.

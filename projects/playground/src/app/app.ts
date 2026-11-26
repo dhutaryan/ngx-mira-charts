@@ -10,6 +10,7 @@ import {
 import {
   type LineCurve,
   MiraCartesianGrid,
+  MiraCursor,
   MiraLine,
   MiraLineChart,
   MiraXAxis,
@@ -43,6 +44,7 @@ function randomCount(): number {
   imports: [
     MiraLineChart,
     MiraCartesianGrid,
+    MiraCursor,
     MiraXAxis,
     MiraYAxis,
     MiraLine,

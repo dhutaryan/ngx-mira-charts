@@ -23,6 +23,7 @@
 
   <mira-line-chart [data]="data()">
     <mira-cartesian-grid strokeDasharray="3 3" />
+    <mira-cursor />
     <mira-x-axis dataKey="name" />
     <mira-y-axis />
     <mira-line dataKey="uv" stroke="#8884d8" [curve]="curve()" [dot]="dots()" />

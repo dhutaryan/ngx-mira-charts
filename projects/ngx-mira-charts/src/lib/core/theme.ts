@@ -13,6 +13,7 @@ export const CHART_THEME = `
     --_mira-axis-color: var(--mira-axis-color, #666);
     --_mira-grid-color: var(--mira-grid-color, #ccc);
     --_mira-background: var(--mira-background, #fff);
+    --_mira-cursor-color: var(--mira-cursor-color, #999);
   }
 
   @supports (color: light-dark(#000, #fff)) {
@@ -20,6 +21,7 @@ export const CHART_THEME = `
       --_mira-axis-color: var(--mira-axis-color, light-dark(#666, #999));
       --_mira-grid-color: var(--mira-grid-color, light-dark(#ccc, #333));
       --_mira-background: var(--mira-background, Canvas);
+      --_mira-cursor-color: var(--mira-cursor-color, light-dark(#999, #666));
     }
   }
 `
