@@ -55,11 +55,11 @@ import { valueAt } from './data'
     }
 
     line {
-      stroke: var(--mira-axis-color, #666);
+      stroke: var(--_mira-axis-color);
     }
 
     text {
-      fill: var(--mira-axis-color, #666);
+      fill: var(--_mira-axis-color);
     }
   `,
 })

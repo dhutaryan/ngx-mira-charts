@@ -17,6 +17,9 @@
   >
     curve: {{ curve() }}
   </button>
+  <button type="button" (click)="dark.set(!dark())">
+    theme: {{ dark() ? 'dark' : 'light' }}
+  </button>
 
   <mira-line-chart [data]="data()">
     <mira-cartesian-grid strokeDasharray="3 3" />

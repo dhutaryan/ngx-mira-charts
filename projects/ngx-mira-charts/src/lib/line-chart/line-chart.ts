@@ -10,6 +10,7 @@ import {
 
 import { MiraCartesianChart } from '../core/cartesian-chart'
 import { pointPositions } from '../core/scale'
+import { CHART_THEME } from '../core/theme'
 import { MiraXAxis } from '../core/x-axis'
 import { MiraYAxis } from '../core/y-axis'
 import { MiraLine } from './line'
@@ -49,11 +50,14 @@ import { MiraLine } from './line'
       }
     </svg>
   `,
-  styles: `
-    svg {
-      display: block;
-    }
-  `,
+  styles: [
+    CHART_THEME,
+    `
+      svg {
+        display: block;
+      }
+    `,
+  ],
 })
 export class MiraLineChart extends MiraCartesianChart {
   /** A point per datum, from edge to edge of the plot. */

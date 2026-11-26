@@ -59,7 +59,7 @@ import { MiraChartLayer } from './chart-layer'
   `,
   styles: `
     line {
-      stroke: var(--mira-grid-color, #ccc);
+      stroke: var(--_mira-grid-color);
     }
   `,
 })

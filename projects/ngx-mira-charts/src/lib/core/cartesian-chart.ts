@@ -65,6 +65,15 @@ const FALLBACK_SIZE = { width: 600, height: 300 }
  *
  * Inject it in a layer of your own ({@link MiraChartLayer}) to draw where the
  * chart's series are.
+ *
+ * Its colors are CSS custom properties, to set anywhere above the chart:
+ *
+ * - `--mira-axis-color`: the axes' lines and labels;
+ * - `--mira-grid-color`: the grid.
+ *
+ * Unset, they suit the page's `color-scheme`: light by default, dark where the
+ * page sets `color-scheme: dark`, and the system's with `light dark`. A line's
+ * own color is its `stroke`.
  */
 @Directive({
   host: {

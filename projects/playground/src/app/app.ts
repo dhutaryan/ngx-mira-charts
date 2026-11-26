@@ -1,7 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DOCUMENT,
   computed,
+  effect,
+  inject,
   signal,
 } from '@angular/core'
 import {
@@ -55,6 +58,7 @@ export class App {
   protected readonly dots = signal(true)
   protected readonly gaps = signal(false)
   protected readonly curve = signal<LineCurve>('linear')
+  protected readonly dark = signal(false)
 
   /** With gaps on, every third uv goes missing, and the line breaks there. */
   protected readonly data = computed(() =>
@@ -64,6 +68,15 @@ export class App {
         )
       : this.visits(),
   )
+
+  constructor() {
+    const root = inject(DOCUMENT).documentElement
+
+    // The charts take their colors from the page's color scheme.
+    effect(() => {
+      root.style.colorScheme = this.dark() ? 'dark' : 'light'
+    })
+  }
 
   protected randomize(): void {
     this.visits.update((rows) =>
