@@ -1,4 +1,4 @@
-import type { ChartDatum } from './types'
+import type { ChartDatum } from '../types'
 
 /** @internal */
 export function valueAt(datum: ChartDatum, key: string): unknown {

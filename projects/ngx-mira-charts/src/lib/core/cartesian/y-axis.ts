@@ -9,12 +9,12 @@ import {
   numberAttribute,
 } from '@angular/core'
 
+import { MiraChartLayer } from '../chart-layer'
 import {
   CartesianContext,
   DEFAULT_TICK_COUNT,
   type Tick,
 } from './cartesian-context'
-import { MiraChartLayer } from './chart-layer'
 
 /**
  * The value axis left of the plot. It fits the values of every series in the

@@ -6,8 +6,8 @@ import {
   inject,
 } from '@angular/core'
 
+import { MiraChartLayer } from '../chart-layer'
 import { CartesianContext } from './cartesian-context'
-import { MiraChartLayer } from './chart-layer'
 
 /**
  * A vertical line across the plot at the datum under the pointer. Write it

@@ -7,8 +7,8 @@ import {
   input,
 } from '@angular/core'
 
+import { MiraChartLayer } from '../chart-layer'
 import { CartesianContext } from './cartesian-context'
-import { MiraChartLayer } from './chart-layer'
 
 /**
  * Grid lines across the plot: across at the ticks of the y scale, and down

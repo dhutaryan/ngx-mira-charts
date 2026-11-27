@@ -1,6 +1,6 @@
 import type { Signal } from '@angular/core'
 
-import type { ChartDatum } from './types'
+import type { ChartDatum } from '../types'
 
 /**
  * The rectangle the series are drawn in: the chart less its margin and the

@@ -14,19 +14,19 @@ import {
   viewChild,
 } from '@angular/core'
 
+import { MiraChartLayer } from '../chart-layer'
+import { MiraSeries } from '../series'
+import { CHART_THEME } from '../theme'
+import type { ChartDatum, ChartMargin } from '../types'
+import { extentOf } from '../utils/data'
+import type { Point } from '../utils/path'
+import { linearScale, linearTicks, nearestIndex } from '../utils/scale'
 import {
   type CartesianContext,
   DEFAULT_TICK_COUNT,
   type PlotArea,
   type Tick,
 } from './cartesian-context'
-import { MiraChartLayer } from './chart-layer'
-import { extentOf } from './data'
-import type { Point } from './path'
-import { linearScale, linearTicks, nearestIndex } from './scale'
-import { MiraSeries } from './series'
-import { CHART_THEME } from './theme'
-import type { ChartDatum, ChartMargin } from './types'
 import { MiraXAxis } from './x-axis'
 import { MiraYAxis } from './y-axis'
 

@@ -8,9 +8,9 @@ import {
   numberAttribute,
 } from '@angular/core'
 
+import { MiraChartLayer } from '../chart-layer'
+import { valueAt } from '../utils/data'
 import { CartesianContext } from './cartesian-context'
-import { MiraChartLayer } from './chart-layer'
-import { valueAt } from './data'
 
 /**
  * The category axis under the plot: a tick per datum, labelled with the

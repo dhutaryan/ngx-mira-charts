@@ -10,9 +10,9 @@ import {
   CARTESIAN_CHART_STYLES,
   CARTESIAN_CHART_TEMPLATE,
   MiraCartesianChart,
-} from '../core/cartesian-chart'
-import { provideCartesianChart } from '../core/provide-cartesian-chart'
-import { pointPositions } from '../core/scale'
+} from '../core/cartesian/cartesian-chart'
+import { provideCartesianChart } from '../core/cartesian/provide-cartesian-chart'
+import { pointPositions } from '../core/utils/scale'
 
 /**
  * A chart of lines over categories, a point per datum. What's in it comes as

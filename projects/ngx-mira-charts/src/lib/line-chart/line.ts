@@ -8,11 +8,11 @@ import {
   input,
 } from '@angular/core'
 
-import { CartesianContext } from '../core/cartesian-context'
+import { CartesianContext } from '../core/cartesian/cartesian-context'
 import { MiraChartLayer } from '../core/chart-layer'
-import { numberAt } from '../core/data'
-import { type LineCurve, type Point, linePath } from '../core/path'
 import { MiraSeries } from '../core/series'
+import { numberAt } from '../core/utils/data'
+import { type LineCurve, type Point, linePath } from '../core/utils/path'
 
 /**
  * A line through the values under `dataKey`, a point per datum, with a dot on
