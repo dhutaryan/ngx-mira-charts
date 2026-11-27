@@ -14,7 +14,9 @@ import { valueAt } from './data'
 
 /**
  * The category axis under the plot: a tick per datum, labelled with the
- * datum's value under `dataKey`.
+ * datum's value under `dataKey`. Its line runs at zero, where values rise and
+ * fall from; the ticks and labels stay under the plot, clear of values below
+ * zero.
  *
  * @example
  * ```html
@@ -33,12 +35,12 @@ import { valueAt } from './data'
         <svg:line
           [attr.x1]="chart.plot().left"
           [attr.x2]="chart.plot().left + chart.plot().width"
-          [attr.y1]="y()"
-          [attr.y2]="y()"
+          [attr.y1]="baseline()"
+          [attr.y2]="baseline()"
         />
         @for (tick of ticks(); track $index) {
           <svg:g
-            [attr.transform]="'translate(' + tick.offset + ',' + y() + ')'"
+            [attr.transform]="'translate(' + tick.offset + ',' + bottom() + ')'"
           >
             <svg:line y2="6" />
             <svg:text y="9" dy="0.71em" text-anchor="middle">
@@ -70,9 +72,17 @@ export class MiraXAxis extends MiraChartLayer {
   readonly height = input(30, { transform: numberAttribute })
 
   protected readonly chart = inject(CartesianContext)
-  protected readonly y = computed(
+  // Where the ticks and labels hang from: the bottom of the plot.
+  protected readonly bottom = computed(
     () => this.chart.plot().top + this.chart.plot().height,
   )
+
+  // Where the axis line runs: at zero, kept on the plot.
+  protected readonly baseline = computed(() => {
+    const zero = this.chart.yScale()(0)
+
+    return Math.min(this.bottom(), Math.max(this.chart.plot().top, zero))
+  })
 
   protected readonly ticks = computed(() => {
     const key = this.dataKey()
