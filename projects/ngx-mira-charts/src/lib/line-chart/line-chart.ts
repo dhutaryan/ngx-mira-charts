@@ -11,7 +11,7 @@ import {
   CARTESIAN_CHART_TEMPLATE,
   MiraCartesianChart,
 } from '../core/cartesian-chart'
-import { CartesianContext } from '../core/cartesian-context'
+import { provideCartesianChart } from '../core/provide-cartesian-chart'
 import { pointPositions } from '../core/scale'
 
 /**
@@ -34,13 +34,7 @@ import { pointPositions } from '../core/scale'
   selector: 'mira-line-chart',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet],
-  providers: [
-    {
-      provide: MiraCartesianChart,
-      useExisting: forwardRef(() => MiraLineChart),
-    },
-    { provide: CartesianContext, useExisting: forwardRef(() => MiraLineChart) },
-  ],
+  providers: [provideCartesianChart(forwardRef(() => MiraLineChart))],
   template: CARTESIAN_CHART_TEMPLATE,
   styles: CARTESIAN_CHART_STYLES,
 })

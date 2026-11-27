@@ -22,6 +22,7 @@ import {
 } from './cartesian-context'
 import { MiraChartLayer } from './chart-layer'
 import { extentOf } from './data'
+import type { Point } from './path'
 import { linearScale, linearTicks, nearestIndex } from './scale'
 import { MiraSeries } from './series'
 import { CHART_THEME } from './theme'
@@ -65,11 +66,13 @@ export const CARTESIAN_CHART_STYLES = [
   `,
 ]
 
+type Size = { readonly width: number; readonly height: number }
+
 const DEFAULT_MARGIN: ChartMargin = { top: 10, right: 20, bottom: 10, left: 10 }
 
 // The size a chart draws at until it can measure its container: on the
 // server, in the browser's first frame, and while it's hidden.
-const FALLBACK_SIZE = { width: 600, height: 300 }
+const FALLBACK_SIZE: Size = { width: 600, height: 300 }
 
 /**
  * What every chart with an x and a y axis has, whatever its series: data, a
@@ -124,16 +127,19 @@ export abstract class MiraCartesianChart implements CartesianContext {
   readonly ariaLabel = input<string>()
 
   /** The size the chart draws at, in px: its inputs, or its container's. */
-  readonly size = computed(() => {
-    const measured = this.#measured()
+  readonly size = computed<Size>(
+    () => {
+      const measured = this.#measured()
 
-    // A size of 0 means the chart is hidden, or its container has no height:
-    // drawing at 0 would keep it at 0 once it shows.
-    return {
-      width: this.width() ?? (measured?.width || FALLBACK_SIZE.width),
-      height: this.height() ?? (measured?.height || FALLBACK_SIZE.height),
-    }
-  })
+      // A size of 0 means the chart is hidden, or its container has no height:
+      // drawing at 0 would keep it at 0 once it shows.
+      return {
+        width: this.width() ?? (measured?.width || FALLBACK_SIZE.width),
+        height: this.height() ?? (measured?.height || FALLBACK_SIZE.height),
+      }
+    },
+    { equal: sameSize },
+  )
 
   /** Where the series are drawn: the chart less its margin and its axes. */
   readonly plot = computed<PlotArea>(() => {
@@ -166,9 +172,25 @@ export abstract class MiraCartesianChart implements CartesianContext {
 
   /**
    * The index of the datum nearest the pointer along x, or null while the
-   * pointer is off the plot.
+   * pointer is off the plot. It follows the data and the size as they change
+   * under a pointer that stays put.
    */
-  readonly activeIndex = computed(() => this.#activeIndex())
+  readonly activeIndex = computed(() => {
+    const pointer = this.#pointer()
+
+    if (!pointer) return null
+
+    const { left, top, width, height } = this.plot()
+    const onPlot =
+      pointer.x >= left &&
+      pointer.x <= left + width &&
+      pointer.y >= top &&
+      pointer.y <= top + height
+
+    if (!onPlot) return null
+
+    return nearestIndex(this.xPositions(), pointer.x)
+  })
 
   /** The x of each datum, in the order of the data: the kind of chart's call. */
   abstract readonly xPositions: Signal<readonly number[]>
@@ -178,8 +200,8 @@ export abstract class MiraCartesianChart implements CartesianContext {
   /** The series, of whatever kind: the y axis fits all their values. */
   protected readonly series = contentChildren(MiraSeries)
   /** The chart's axes, if it has them: the plot leaves room for them. */
-  protected readonly xAxis = contentChild(MiraXAxis)
-  protected readonly yAxis = contentChild(MiraYAxis)
+  protected readonly xAxis = contentChild(MiraXAxis, { descendants: false })
+  protected readonly yAxis = contentChild(MiraYAxis, { descendants: false })
   /** The chart's svg, where the pointer is tracked. */
   protected readonly svg = viewChild.required<ElementRef<SVGSVGElement>>('svg')
 
@@ -190,8 +212,9 @@ export abstract class MiraCartesianChart implements CartesianContext {
   })
 
   // The size of the chart's element, as the browser last laid it out.
-  readonly #measured = signal<{ width: number; height: number } | null>(null)
-  readonly #activeIndex = signal<number | null>(null)
+  readonly #measured = signal<Size | null>(null, { equal: sameSize })
+  // The pointer in the svg's own px, while it's over the svg.
+  readonly #pointer = signal<Point | null>(null)
 
   // The values of every series, and zero, rounded out to round ticks.
   readonly #yNice = computed(() => {
@@ -209,6 +232,11 @@ export abstract class MiraCartesianChart implements CartesianContext {
     // In the browser only: on the server there's no layout to measure, and no
     // pointer.
     afterNextRender(() => {
+      const svg = this.svg().nativeElement
+      // The pointer's last place on the page: the svg can move or resize
+      // under a pointer that stays put.
+      let client: Point | null = null
+
       const observer = new ResizeObserver(([entry]) => {
         const { width, height } = entry.contentRect
 
@@ -217,25 +245,28 @@ export abstract class MiraCartesianChart implements CartesianContext {
           width: Math.floor(width),
           height: Math.floor(height),
         })
+
+        if (client) this.#pointer.set(this.#inSvg(client))
       })
 
-      observer.observe(element)
-
       // Listened to outside the template, where every event would check the
-      // chart again: here, a pointer moving about the same datum changes
-      // nothing.
-      const svg = this.svg().nativeElement
+      // chart again: here, a pointer moving about the same datum re-runs no
+      // template, as the active index doesn't change.
       const listening = new AbortController()
-      const track = (event: PointerEvent): void =>
-        this.#activeIndex.set(this.#indexAt(event))
+      const options = { signal: listening.signal }
+      const track = (event: PointerEvent): void => {
+        client = { x: event.clientX, y: event.clientY }
+        this.#pointer.set(this.#inSvg(client))
+      }
+      const leave = (): void => {
+        client = null
+        this.#pointer.set(null)
+      }
 
-      svg.addEventListener('pointermove', track, listening)
-      svg.addEventListener('pointerdown', track, listening)
-      svg.addEventListener(
-        'pointerleave',
-        () => this.#activeIndex.set(null),
-        listening,
-      )
+      observer.observe(element)
+      svg.addEventListener('pointermove', track, options)
+      svg.addEventListener('pointerdown', track, options)
+      svg.addEventListener('pointerleave', leave, options)
 
       destroyRef.onDestroy(() => {
         observer.disconnect()
@@ -244,25 +275,30 @@ export abstract class MiraCartesianChart implements CartesianContext {
     })
   }
 
-  // The datum nearest the pointer along x, if the pointer is on the plot.
-  #indexAt(event: PointerEvent): number | null {
+  // A point on the page, in the svg's own px, whatever scales the svg there.
+  #inSvg(client: Point): Point | null {
     const matrix = this.svg().nativeElement.getScreenCTM()
 
     if (!matrix) return null
 
-    // The pointer in the svg's own px, whatever scales the svg on the page.
-    const { x, y } = new DOMPoint(event.clientX, event.clientY).matrixTransform(
+    const { x, y } = new DOMPoint(client.x, client.y).matrixTransform(
       matrix.inverse(),
     )
-    const { left, top, width, height } = this.plot()
-    const onPlot =
-      x >= left && x <= left + width && y >= top && y <= top + height
 
-    return onPlot ? nearestIndex(this.xPositions(), x) : null
+    return { x, y }
   }
 }
 
-// Takes `width="640"` as well as `[width]="640"`, and no value at all.
+function sameSize(a: Size | null, b: Size | null): boolean {
+  return a?.width === b?.width && a?.height === b?.height
+}
+
+// Takes `width="640"` as well as `[width]="640"`, and no value at all. A value
+// that isn't a number, like `width="auto"`, counts as none.
 function optionalNumber(value: unknown): number | undefined {
-  return value == null || value === '' ? undefined : numberAttribute(value)
+  if (value == null || value === '') return undefined
+
+  const number = numberAttribute(value)
+
+  return Number.isNaN(number) ? undefined : number
 }

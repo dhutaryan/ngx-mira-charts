@@ -4,6 +4,7 @@
 
 export type { ChartDatum, ChartMargin } from './lib/core/types'
 export type { LineCurve } from './lib/core/path'
+export type { PlotArea, Tick } from './lib/core/cartesian-context'
 export { MiraCartesianChart } from './lib/core/cartesian-chart'
 export { MiraChartLayer } from './lib/core/chart-layer'
 export { MiraSeries } from './lib/core/series'

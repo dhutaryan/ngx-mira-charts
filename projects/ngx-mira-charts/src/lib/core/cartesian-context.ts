@@ -5,8 +5,6 @@ import type { ChartDatum } from './types'
 /**
  * The rectangle the series are drawn in: the chart less its margin and the
  * room its axes take, in px within the chart's svg.
- *
- * @internal
  */
 export type PlotArea = {
   readonly left: number
@@ -15,11 +13,7 @@ export type PlotArea = {
   readonly height: number
 }
 
-/**
- * A tick on the y axis: its value, and its y in px within the chart's svg.
- *
- * @internal
- */
+/** A tick on the y axis: its value, and its y in px within the chart's svg. */
 export type Tick = {
   readonly value: number
   readonly offset: number
@@ -35,10 +29,11 @@ export const DEFAULT_TICK_COUNT = 5
 
 /**
  * What the layers of a chart with an x and a y axis draw by: the data, the
- * plot area, the scales, and the datum under the pointer. `MiraCartesianChart`
- * provides itself under it, and the library's own layers inject it: they can't
- * import the chart, which imports the axes to leave room for them. The way
- * Angular Material's tabs inject `MAT_TAB_GROUP`.
+ * plot area, the scales, and the datum under the pointer. Every kind of chart
+ * provides itself under it, with `provideCartesianChart`, and the library's
+ * own layers inject it: they can't import the chart, which imports the axes
+ * to leave room for them. The way Angular Material's tabs inject
+ * `MAT_TAB_GROUP`.
  *
  * @internal
  */

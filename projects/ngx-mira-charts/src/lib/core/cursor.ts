@@ -30,13 +30,13 @@ import { MiraChartLayer } from './chart-layer'
   ],
   template: `
     <ng-template>
-      @if (line(); as line) {
+      @if (line(); as at) {
         <svg:line
           class="mira-cursor"
-          [attr.x1]="line.x"
-          [attr.x2]="line.x"
-          [attr.y1]="line.top"
-          [attr.y2]="line.bottom"
+          [attr.x1]="at.x"
+          [attr.x2]="at.x"
+          [attr.y1]="at.top"
+          [attr.y2]="at.bottom"
         />
       }
     </ng-template>

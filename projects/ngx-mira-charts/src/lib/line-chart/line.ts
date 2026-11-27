@@ -87,6 +87,7 @@ import { MiraSeries } from '../core/series'
   `,
 })
 export class MiraLine extends MiraSeries {
+  /** The color of the line and of its dots. */
   readonly stroke = input('#3182bd')
   /** How the line goes from one value to the next. */
   readonly curve = input<LineCurve>('linear')
