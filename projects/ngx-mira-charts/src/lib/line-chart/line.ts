@@ -8,10 +8,11 @@ import {
   input,
 } from '@angular/core'
 
-import { MiraCartesianChart } from '../core/cartesian-chart'
+import { CartesianContext } from '../core/cartesian-context'
 import { MiraChartLayer } from '../core/chart-layer'
 import { numberAt } from '../core/data'
 import { type LineCurve, type Point, linePath } from '../core/path'
+import { MiraSeries } from '../core/series'
 
 /**
  * A line through the values under `dataKey`, a point per datum, with a dot on
@@ -29,6 +30,7 @@ import { type LineCurve, type Point, linePath } from '../core/path'
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     { provide: MiraChartLayer, useExisting: forwardRef(() => MiraLine) },
+    { provide: MiraSeries, useExisting: forwardRef(() => MiraLine) },
   ],
   template: `
     <ng-template>
@@ -84,9 +86,7 @@ import { type LineCurve, type Point, linePath } from '../core/path'
     }
   `,
 })
-export class MiraLine extends MiraChartLayer {
-  /** The key of the values to plot. */
-  readonly dataKey = input.required<string>()
+export class MiraLine extends MiraSeries {
   readonly stroke = input('#3182bd')
   /** How the line goes from one value to the next. */
   readonly curve = input<LineCurve>('linear')
@@ -114,7 +114,7 @@ export class MiraLine extends MiraChartLayer {
     return this.#points()[index] ?? null
   })
 
-  readonly #chart = inject(MiraCartesianChart)
+  readonly #chart = inject(CartesianContext)
   // A point per datum, or null where the datum has no value to plot.
   readonly #points = computed<ReadonlyArray<Point | null>>(() => {
     const key = this.dataKey()

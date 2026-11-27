@@ -2,28 +2,29 @@ import { NgTemplateOutlet } from '@angular/common'
 import {
   ChangeDetectionStrategy,
   Component,
-  type ElementRef,
   computed,
-  contentChild,
-  contentChildren,
   forwardRef,
-  viewChild,
 } from '@angular/core'
 
-import { MiraCartesianChart } from '../core/cartesian-chart'
+import {
+  CARTESIAN_CHART_STYLES,
+  CARTESIAN_CHART_TEMPLATE,
+  MiraCartesianChart,
+} from '../core/cartesian-chart'
+import { CartesianContext } from '../core/cartesian-context'
 import { pointPositions } from '../core/scale'
-import { CHART_THEME } from '../core/theme'
-import { MiraXAxis } from '../core/x-axis'
-import { MiraYAxis } from '../core/y-axis'
-import { MiraLine } from './line'
 
 /**
- * A chart of lines over categories. What's in it comes as content, drawn in
- * the order it's written.
+ * A chart of lines over categories, a point per datum. What's in it comes as
+ * content, drawn in the order it's written, so the first one ends up at the
+ * bottom.
  *
  * @example
  * ```html
  * <mira-line-chart [data]="sales">
+ *   <mira-cartesian-grid />
+ *   <mira-x-axis dataKey="month" />
+ *   <mira-y-axis />
  *   <mira-line dataKey="revenue" stroke="#8884d8" />
  *   <mira-line dataKey="costs" stroke="#82ca9d" />
  * </mira-line-chart>
@@ -38,29 +39,10 @@ import { MiraLine } from './line'
       provide: MiraCartesianChart,
       useExisting: forwardRef(() => MiraLineChart),
     },
+    { provide: CartesianContext, useExisting: forwardRef(() => MiraLineChart) },
   ],
-  template: `
-    <svg
-      #svg
-      role="img"
-      [attr.width]="size().width"
-      [attr.height]="size().height"
-      [attr.viewBox]="viewBox()"
-      [attr.aria-label]="ariaLabel() ?? null"
-    >
-      @for (layer of layers(); track layer) {
-        <ng-container [ngTemplateOutlet]="layer.template() ?? null" />
-      }
-    </svg>
-  `,
-  styles: [
-    CHART_THEME,
-    `
-      svg {
-        display: block;
-      }
-    `,
-  ],
+  template: CARTESIAN_CHART_TEMPLATE,
+  styles: CARTESIAN_CHART_STYLES,
 })
 export class MiraLineChart extends MiraCartesianChart {
   /** A point per datum, from edge to edge of the plot. */
@@ -68,21 +50,5 @@ export class MiraLineChart extends MiraCartesianChart {
     const { left, width } = this.plot()
 
     return pointPositions(this.data().length, [left, left + width])
-  })
-
-  protected readonly lines = contentChildren(MiraLine)
-  protected override readonly valueKeys = computed(() =>
-    this.lines().map((line) => line.dataKey()),
-  )
-
-  protected override readonly xAxis = contentChild(MiraXAxis)
-  protected override readonly yAxis = contentChild(MiraYAxis)
-  protected override readonly svg =
-    viewChild.required<ElementRef<SVGSVGElement>>('svg')
-
-  protected readonly viewBox = computed(() => {
-    const { width, height } = this.size()
-
-    return `0 0 ${width} ${height}`
   })
 }

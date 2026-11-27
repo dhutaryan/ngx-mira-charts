@@ -8,7 +8,7 @@ import {
   numberAttribute,
 } from '@angular/core'
 
-import { MiraCartesianChart } from './cartesian-chart'
+import { CartesianContext } from './cartesian-context'
 import { MiraChartLayer } from './chart-layer'
 import { valueAt } from './data'
 
@@ -69,7 +69,7 @@ export class MiraXAxis extends MiraChartLayer {
   /** The room the axis takes under the plot, in px. */
   readonly height = input(30, { transform: numberAttribute })
 
-  protected readonly chart = inject(MiraCartesianChart)
+  protected readonly chart = inject(CartesianContext)
   protected readonly y = computed(
     () => this.chart.plot().top + this.chart.plot().height,
   )

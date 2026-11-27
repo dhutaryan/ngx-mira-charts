@@ -7,7 +7,7 @@ import {
   input,
 } from '@angular/core'
 
-import { MiraCartesianChart } from './cartesian-chart'
+import { CartesianContext } from './cartesian-context'
 import { MiraChartLayer } from './chart-layer'
 
 /**
@@ -71,5 +71,5 @@ export class MiraCartesianGrid extends MiraChartLayer {
   /** Dashes the lines, as the svg attribute does: `"3 3"`. */
   readonly strokeDasharray = input<string>()
 
-  protected readonly chart = inject(MiraCartesianChart)
+  protected readonly chart = inject(CartesianContext)
 }

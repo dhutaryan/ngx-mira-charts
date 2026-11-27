@@ -10,10 +10,10 @@ import {
 } from '@angular/core'
 
 import {
-  MiraCartesianChart,
+  CartesianContext,
   DEFAULT_TICK_COUNT,
   type Tick,
-} from './cartesian-chart'
+} from './cartesian-context'
 import { MiraChartLayer } from './chart-layer'
 
 /**
@@ -76,7 +76,7 @@ export class MiraYAxis extends MiraChartLayer {
     transform: numberAttribute,
   })
 
-  protected readonly chart = inject(MiraCartesianChart)
+  protected readonly chart = inject(CartesianContext)
   protected readonly x = computed(() => this.chart.plot().left)
   protected readonly ticks = computed(() => {
     const ticks = this.chart.yTicks()

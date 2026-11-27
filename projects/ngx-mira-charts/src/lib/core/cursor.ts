@@ -6,7 +6,7 @@ import {
   inject,
 } from '@angular/core'
 
-import { MiraCartesianChart } from './cartesian-chart'
+import { CartesianContext } from './cartesian-context'
 import { MiraChartLayer } from './chart-layer'
 
 /**
@@ -63,5 +63,5 @@ export class MiraCursor extends MiraChartLayer {
     return { x, top, bottom: top + height }
   })
 
-  readonly #chart = inject(MiraCartesianChart)
+  readonly #chart = inject(CartesianContext)
 }

@@ -5,50 +5,65 @@ import {
   type Signal,
   afterNextRender,
   computed,
+  contentChild,
   contentChildren,
   inject,
   input,
   numberAttribute,
   signal,
+  viewChild,
 } from '@angular/core'
 
+import {
+  type CartesianContext,
+  DEFAULT_TICK_COUNT,
+  type PlotArea,
+  type Tick,
+} from './cartesian-context'
 import { MiraChartLayer } from './chart-layer'
 import { extentOf } from './data'
 import { linearScale, linearTicks, nearestIndex } from './scale'
+import { MiraSeries } from './series'
+import { CHART_THEME } from './theme'
 import type { ChartDatum, ChartMargin } from './types'
-import type { MiraXAxis } from './x-axis'
-import type { MiraYAxis } from './y-axis'
+import { MiraXAxis } from './x-axis'
+import { MiraYAxis } from './y-axis'
 
 /**
- * The rectangle the series are drawn in: the chart less its margin and the
- * room its axes take, in px within the chart's svg.
+ * The template of every chart with an x and a y axis: an svg with the
+ * chart's layers in it, in the order they're written. A chart that takes it
+ * imports `NgTemplateOutlet`.
  *
  * @internal
  */
-export type PlotArea = {
-  readonly left: number
-  readonly top: number
-  readonly width: number
-  readonly height: number
-}
+export const CARTESIAN_CHART_TEMPLATE = `
+  <svg
+    #svg
+    role="img"
+    [attr.width]="size().width"
+    [attr.height]="size().height"
+    [attr.viewBox]="viewBox()"
+    [attr.aria-label]="ariaLabel() ?? null"
+  >
+    @for (layer of layers(); track layer) {
+      <ng-container [ngTemplateOutlet]="layer.template() ?? null" />
+    }
+  </svg>
+`
 
 /**
- * A tick on the y axis: its value, and its y in px within the chart's svg.
+ * The styles of every chart with an x and a y axis, its theme among them.
  *
  * @internal
  */
-export type Tick = {
-  readonly value: number
-  readonly offset: number
-}
-
-/**
- * About how many ticks the y scale aims for, unless the y axis asks for
- * another number.
- *
- * @internal
- */
-export const DEFAULT_TICK_COUNT = 5
+export const CARTESIAN_CHART_STYLES = [
+  CHART_THEME,
+  `
+    svg {
+      display: block;
+    }
+  `,
+]
 
 const DEFAULT_MARGIN: ChartMargin = { top: 10, right: 20, bottom: 10, left: 10 }
 
@@ -57,14 +72,14 @@ const DEFAULT_MARGIN: ChartMargin = { top: 10, right: 20, bottom: 10, left: 10 }
 const FALLBACK_SIZE = { width: 600, height: 300 }
 
 /**
- * What every chart with an x and a y axis has: data, a size, a margin, the
- * plot area they leave, and a y scale that fits the values of its series.
- * Line and bar charts extend it and provide themselves under it, so the axes,
- * the grid and the series inject it to know where to draw, whichever chart
- * they're in. The way `MatTable` extends `CdkTable`.
+ * What every chart with an x and a y axis has, whatever its series: data, a
+ * size, a margin, the plot area they leave, a y scale that fits the values of
+ * its series, and the datum under the pointer. Nothing about a kind of chart:
+ * a line chart extends it with a point per datum along x, a bar chart will
+ * with a band per datum, and with how its bars share a band.
  *
  * Inject it in a layer of your own ({@link MiraChartLayer}) to draw where the
- * chart's series are.
+ * series are.
  *
  * Its colors are CSS custom properties, to set anywhere above the chart:
  *
@@ -87,7 +102,7 @@ const FALLBACK_SIZE = { width: 600, height: 300 }
     '[style.height]': 'height() === undefined ? "100%" : null',
   },
 })
-export abstract class MiraCartesianChart {
+export abstract class MiraCartesianChart implements CartesianContext {
   /** The rows to plot. */
   readonly data = input<readonly ChartDatum[]>([])
   /** The width in px. Without it, the chart is as wide as its container. */
@@ -120,6 +135,7 @@ export abstract class MiraCartesianChart {
     }
   })
 
+  /** Where the series are drawn: the chart less its margin and its axes. */
   readonly plot = computed<PlotArea>(() => {
     const { width, height } = this.size()
     const margin = { ...DEFAULT_MARGIN, ...this.margin() }
@@ -154,20 +170,24 @@ export abstract class MiraCartesianChart {
    */
   readonly activeIndex = computed(() => this.#activeIndex())
 
-  /** The x of each datum, in the order of the data. */
+  /** The x of each datum, in the order of the data: the kind of chart's call. */
   abstract readonly xPositions: Signal<readonly number[]>
 
   /** What the chart draws, in the order it's written. */
   protected readonly layers = contentChildren(MiraChartLayer)
-
-  /** The keys of the values the y axis has to fit: one per series. */
-  protected abstract readonly valueKeys: Signal<readonly string[]>
-  /** The chart's x axis, if it has one: the plot leaves room for it. */
-  protected abstract readonly xAxis: Signal<MiraXAxis | undefined>
-  /** The chart's y axis, if it has one: the plot leaves room for it. */
-  protected abstract readonly yAxis: Signal<MiraYAxis | undefined>
+  /** The series, of whatever kind: the y axis fits all their values. */
+  protected readonly series = contentChildren(MiraSeries)
+  /** The chart's axes, if it has them: the plot leaves room for them. */
+  protected readonly xAxis = contentChild(MiraXAxis)
+  protected readonly yAxis = contentChild(MiraYAxis)
   /** The chart's svg, where the pointer is tracked. */
-  protected abstract readonly svg: Signal<ElementRef<SVGSVGElement>>
+  protected readonly svg = viewChild.required<ElementRef<SVGSVGElement>>('svg')
+
+  protected readonly viewBox = computed(() => {
+    const { width, height } = this.size()
+
+    return `0 0 ${width} ${height}`
+  })
 
   // The size of the chart's element, as the browser last laid it out.
   readonly #measured = signal<{ width: number; height: number } | null>(null)
@@ -175,7 +195,8 @@ export abstract class MiraCartesianChart {
 
   // The values of every series, and zero, rounded out to round ticks.
   readonly #yNice = computed(() => {
-    const [min, max] = extentOf(this.data(), this.valueKeys()) ?? [0, 0]
+    const keys = this.series().map((series) => series.dataKey())
+    const [min, max] = extentOf(this.data(), keys) ?? [0, 0]
     const count = this.yAxis()?.tickCount() ?? DEFAULT_TICK_COUNT
 
     return linearTicks([Math.min(0, min), Math.max(0, max)], count)
